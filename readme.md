@@ -34,3 +34,7 @@ We follow an **Agile SDLC** approach, allowing for iterative development and fre
 1. Navigate to `src/`
 2. Run `npm install`
 3. Run `npm run dev`
+
+
+
+
