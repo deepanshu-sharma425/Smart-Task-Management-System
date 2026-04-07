@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow, format, isPast, isToday, differenceInDays } from 'date-fns';
 import { 
@@ -35,7 +35,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const res = await fetch('/api/tasks');
       if (res.ok) {
@@ -45,11 +45,11 @@ export default function Home() {
     } catch (err) {
       console.error('Failed to fetch tasks', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +73,7 @@ export default function Home() {
         const data = await res.json();
         setError(data.error || 'Failed to create task');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -91,7 +91,7 @@ export default function Home() {
       if (res.ok) {
         fetchTasks();
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to update task', err);
     }
   };
@@ -212,7 +212,7 @@ export default function Home() {
                   <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-widest pl-1">Priority</label>
                   <select
                     value={priority}
-                    onChange={(e) => setPriority(e.target.value as any)}
+                    onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
                     className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:border-blue-600 focus:ring-0 outline-none dark:text-white font-bold"
                   >
                     <option value="low">Low</option>
