@@ -18,7 +18,7 @@ export class Database {
       return;
     }
 
-    const rawUri = process.env.MONGODB_URI;
+    const rawUri = process.env.MONGODB_URI?.trim();
     if (!rawUri) {
       throw new Error('MONGODB_URI is not defined in environment variables');
     }

@@ -3,7 +3,8 @@ import { Database } from '@db/database';
 import TaskModel from '@db/models/TaskSchema';
 import { updateLocalTaskStatus } from '@db/localTaskStore';
 
-const useLocalStore = !process.env.MONGODB_URI && process.env.NODE_ENV !== 'production';
+const mongoUri = process.env.MONGODB_URI?.trim();
+const useLocalStore = !mongoUri && process.env.NODE_ENV !== 'production';
 
 type PatchPayload = {
   status: 'pending' | 'in_progress' | 'completed';

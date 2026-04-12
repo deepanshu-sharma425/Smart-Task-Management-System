@@ -3,7 +3,8 @@ import { Database } from '@db/database';
 import ProjectModel from '@db/models/ProjectSchema';
 import { createLocalProject, getLocalProjects } from '@db/localProjectStore';
 
-const useLocalStore = !process.env.MONGODB_URI && process.env.NODE_ENV !== 'production';
+const mongoUri = process.env.MONGODB_URI?.trim();
+const useLocalStore = !mongoUri && process.env.NODE_ENV !== 'production';
 
 type ProjectPayload = {
   name: string;
