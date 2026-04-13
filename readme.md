@@ -8,8 +8,17 @@ A modern task management system built using **Next.js, TypeScript, and MongoDB**
 
 - `/src` - Application source code  
 - `/db` - Database connection and configuration  
-- `/diagrams` - ER diagrams  
+- `/diagrams` - ER, class, use case, and sequence diagrams  
 - `/docs` - SDLC documentation  
+
+---
+
+## 📊 Architecture Diagrams
+
+- [`diagrams/er_diagram.png`](./diagrams/er_diagram.png) - Entity Relationship Diagram
+- [`diagrams/class_diagram.md`](./diagrams/class_diagram.md) - Class Diagram
+- [`diagrams/use_case_diagram.md`](./diagrams/use_case_diagram.md) - Use Case Diagram
+- [`diagrams/sequence_diagram.md`](./diagrams/sequence_diagram.md) - Sequence Diagram
 
 ---
 
