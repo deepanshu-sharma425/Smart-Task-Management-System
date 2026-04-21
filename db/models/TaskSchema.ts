@@ -1,37 +1,26 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { ITask } from '../interfaces/models';
 
-export type TaskStatus = 'pending' | 'in_progress' | 'completed';
-export type TaskPriority = 'low' | 'medium' | 'high';
-
-export interface ITaskDocument extends Document {
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  deadline?: Date;
-  projectId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const TaskSchema: Schema = new Schema(
+const TaskSchema = new Schema<ITask>(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
     status: {
       type: String,
-      enum: ['pending', 'in_progress', 'completed'],
+      enum: ['pending', 'in_progress', 'completed', 'archived'],
       default: 'pending',
     },
     priority: {
       type: String,
-      enum: ['low', 'medium', 'high'],
+      enum: ['low', 'medium', 'high', 'critical'],
       default: 'medium',
     },
-    deadline: { type: Date },
-    projectId: { type: Schema.Types.ObjectId, ref: 'Project' },
+    deadline: { type: String }, // Storing as ISO string to match interface
+    assignedTo: { type: String }, // We'll keep these as strings for now to match current service logic, or use Schema.Types.ObjectId if we want stricter DB links
+    assignedBy: { type: String },
+    projectId: { type: String },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Task || mongoose.model<ITaskDocument>('Task', TaskSchema);
+export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);

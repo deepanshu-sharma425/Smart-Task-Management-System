@@ -1,18 +1,14 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { IProject } from '../interfaces/models';
 
-export interface IProjectDocument extends Document {
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const ProjectSchema: Schema = new Schema(
+const ProjectSchema = new Schema<IProject>(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
+    ownerId: { type: String, required: true },
+    memberIds: { type: [String], default: [] },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Project || mongoose.model<IProjectDocument>('Project', ProjectSchema);
+export default mongoose.models.Project || mongoose.model<IProject>('Project', ProjectSchema);

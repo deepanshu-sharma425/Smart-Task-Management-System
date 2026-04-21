@@ -1,36 +1,15 @@
 import { NextResponse } from 'next/server';
-import { Database } from '@db/database';
-import TaskModel from '@db/models/TaskSchema';
-import { updateLocalTaskStatus } from '@db/localTaskStore';
+import { TaskService } from '@db/services/TaskService';
 
-const mongoUri = process.env.MONGODB_URI?.trim();
-const useLocalStore = !mongoUri && process.env.NODE_ENV !== 'production';
-
-type PatchPayload = {
-  status: 'pending' | 'in_progress' | 'completed';
-};
-
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
-    const { status } = (await request.json()) as PatchPayload;
-
-    if (useLocalStore) {
-      const updatedTask = updateLocalTaskStatus(id, status);
-      if (!updatedTask) {
-        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
-      }
-      return NextResponse.json(updatedTask);
-    }
-
-    const db = Database.getInstance();
-    await db.connect();
-
-    const updatedTask = await TaskModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const data = await request.json();
+    const taskService = TaskService.getInstance();
+    const updatedTask = await taskService.updateTask(id, data);
 
     if (!updatedTask) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
@@ -38,7 +17,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json(updatedTask);
   } catch (error) {
-    console.error('Error updating task:', error);
+    console.error('Update task error:', error);
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const taskService = TaskService.getInstance();
+    const success = await taskService.deleteTask(id);
+
+    if (!success) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete task error:', error);
+    return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 });
   }
 }
