@@ -13,12 +13,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'TaskForge — Smart Task Management',
   description: 'Precision workflow management for high-performance teams. Assign tasks, set deadlines, and track progress with your team.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased dark`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-sans">
+    <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-blue-950/30 dark:to-slate-950 transition-colors duration-300">
         <ThemeProvider>
           <AuthProvider>
             {children}
