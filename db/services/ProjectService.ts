@@ -23,7 +23,7 @@ export class ProjectService extends BaseService implements IProjectService {
 
   public async createProject(data: ICreateProjectData): Promise<IProject> {
     return await this.execute('createProject', async () => {
-      const errors = this.validateRequired(data, ['name', 'description', 'ownerId']);
+      const errors = this.validateRequired(data, ['name', 'ownerId']);
       if (errors.length > 0) {
         throw new Error(errors.join(', '));
       }

@@ -17,7 +17,6 @@ import Link from 'next/link';
 import BackgroundShapes from './components/BackgroundShapes';
 import ParallaxSection from './components/ParallaxSection';
 import AnimatedCard from './components/AnimatedCard';
-import Navbar from './components/Navbar';
 
 const features = [
   {
@@ -86,7 +85,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120]">
       <BackgroundShapes count={15} />
-      <Navbar />
 
       {/* ─── Hero Section ─── */}
       <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">

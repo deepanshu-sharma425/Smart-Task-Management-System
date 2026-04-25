@@ -2,7 +2,7 @@
 // Follows Interface Segregation: each interface is focused and composable.
 // Follows Liskov Substitution: any IEntity subtype can be used where IEntity is expected.
 
-import { EntityId, Priority, Role, Status, Timestamps } from './types';
+import { EntityId, Priority, Role, Status, Timestamps, InvitationStatus, NotificationType } from './types';
 
 // ─── Base Entity ─────────────────────────────────────────────────────
 /** Base interface for all entities in the system */
@@ -18,6 +18,7 @@ export interface IUser extends IEntity {
   password: string;
   role: Role;
   avatar?: string;
+  isApproved?: boolean;
 }
 
 /** Safe user representation without password (for API responses) */
@@ -84,4 +85,34 @@ export interface ISession {
   userId: EntityId;
   role: Role;
   expiresAt: string;
+}
+
+// ─── Invitation ──────────────────────────────────────────────────────
+export interface IInvitation extends IEntity {
+  projectId: EntityId;
+  adminId: EntityId;
+  memberId: EntityId;
+  status: InvitationStatus;
+}
+
+export interface ICreateInvitationData {
+  projectId: EntityId;
+  adminId: EntityId;
+  memberId: EntityId;
+}
+
+// ─── Notification ────────────────────────────────────────────────────
+export interface INotification extends IEntity {
+  userId: EntityId;
+  type: NotificationType;
+  message: string;
+  read: boolean;
+  relatedTaskId?: EntityId;
+}
+
+export interface ICreateNotificationData {
+  userId: EntityId;
+  type: NotificationType;
+  message: string;
+  relatedTaskId?: EntityId;
 }

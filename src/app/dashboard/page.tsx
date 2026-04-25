@@ -13,9 +13,11 @@ import {
   ChevronRight,
   UserPlus,
   FolderPlus,
+  Search,
+  Bell,
+  MailPlus,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import Navbar from '../components/Navbar';
 import BackgroundShapes from '../components/BackgroundShapes';
 import TaskCard from '../components/TaskCard';
 import StatsCard from '../components/StatsCard';
@@ -40,6 +42,7 @@ interface UserData {
   name: string;
   email: string;
   role: string;
+  isApproved?: boolean;
 }
 
 interface Project {
@@ -50,6 +53,14 @@ interface Project {
   memberIds: string[];
 }
 
+interface AppNotification {
+  _id: string;
+  type: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -57,6 +68,8 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<UserData[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Task form
   const [taskTitle, setTaskTitle] = useState('');
@@ -68,18 +81,25 @@ export default function DashboardPage() {
   const [taskError, setTaskError] = useState('');
   const [taskLoading, setTaskLoading] = useState(false);
 
-  // Add member form
+  // Add member form & search
   const [memberName, setMemberName] = useState('');
   const [memberEmail, setMemberEmail] = useState('');
   const [memberPassword, setMemberPassword] = useState('');
   const [memberError, setMemberError] = useState('');
   const [memberLoading, setMemberLoading] = useState(false);
+  const [searchName, setSearchName] = useState('');
 
   // Project form
   const [projectName, setProjectName] = useState('');
   const [projectDesc, setProjectDesc] = useState('');
   const [projectError, setProjectError] = useState('');
   const [projectLoading, setProjectLoading] = useState(false);
+
+  // Invite form
+  const [inviteMemberId, setInviteMemberId] = useState('');
+  const [inviteProjectId, setInviteProjectId] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState('');
 
   // Active tab
   const [activeTab, setActiveTab] = useState<'tasks' | 'team' | 'projects'>('tasks');
@@ -108,6 +128,14 @@ export default function DashboardPage() {
     } catch (err) { console.error(err); }
   }, []);
 
+  const fetchNotifications = useCallback(async () => {
+    if (!user?._id) return;
+    try {
+      const res = await fetch(`/api/notifications?userId=${user._id}`);
+      if (res.ok) setNotifications(await res.json());
+    } catch (err) { console.error(err); }
+  }, [user?._id]);
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
@@ -121,8 +149,9 @@ export default function DashboardPage() {
       fetchTasks();
       fetchMembers();
       fetchProjects();
+      fetchNotifications();
     }
-  }, [user, authLoading, router, fetchTasks, fetchMembers, fetchProjects]);
+  }, [user, authLoading, router, fetchTasks, fetchMembers, fetchProjects, fetchNotifications]);
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,6 +204,7 @@ export default function DashboardPage() {
           email: memberEmail,
           password: memberPassword,
           role: 'member',
+          isApproved: true, // Admin created users are auto-approved
         }),
       });
       if (res.ok) {
@@ -190,6 +220,21 @@ export default function DashboardPage() {
       setMemberError('Network error');
     }
     setMemberLoading(false);
+  };
+
+  const handleApproveMember = async (id: string) => {
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isApproved: true }),
+      });
+      if (res.ok) {
+        fetchMembers();
+      }
+    } catch (err) {
+      console.error('Failed to approve member', err);
+    }
   };
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -232,6 +277,49 @@ export default function DashboardPage() {
     } catch (err) { console.error(err); }
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+      if (res.ok) fetchTasks();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleMarkNotificationsRead = async () => {
+    if (!user?._id) return;
+    try {
+      await fetch(`/api/notifications?userId=${user._id}`, { method: 'PATCH' });
+      fetchNotifications();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleInviteToProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteLoading(true);
+    setInviteMessage('');
+    try {
+      const res = await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: inviteProjectId,
+          adminId: user?._id,
+          memberId: inviteMemberId,
+        })
+      });
+      if (res.ok) {
+        setInviteMessage('Invitation sent successfully!');
+        setInviteMemberId('');
+        setInviteProjectId('');
+      } else {
+        const data = await res.json();
+        setInviteMessage(data.error || 'Failed to send invitation');
+      }
+    } catch {
+      setInviteMessage('Network error');
+    }
+    setInviteLoading(false);
+  };
+
   const getMemberName = (id?: string) => {
     if (!id) return 'Unassigned';
     const member = members.find((m) => m._id === id);
@@ -265,25 +353,71 @@ export default function DashboardPage() {
   ];
 
   const inputClass = 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:border-blue-500 outline-none text-slate-900 dark:text-white font-medium placeholder:text-slate-400 transition-colors text-sm';
+  const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchName.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120]">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] pt-16">
       <BackgroundShapes count={6} />
-      <Navbar />
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex justify-between items-start"
         >
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Admin <span className="text-blue-600">Dashboard</span>
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
-            Welcome back, {user?.name}. Here&apos;s your team overview.
-          </p>
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Admin <span className="text-blue-600">Dashboard</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              Welcome back, {user?.name}. Here&apos;s your team overview.
+            </p>
+          </div>
+
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                if (!showNotifications && notifications.some(n => !n.read)) {
+                  handleMarkNotificationsRead();
+                }
+              }}
+              className="p-3 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 hover:border-blue-500 transition-colors relative"
+            >
+              <Bell className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+              {notifications.some(n => !n.read) && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+              )}
+            </button>
+            <AnimatePresence>
+              {showNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                >
+                  <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h3 className="font-bold text-slate-900 dark:text-white">Notifications</h3>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto p-2">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-slate-500 text-sm">No notifications</div>
+                    ) : (
+                      notifications.map(n => (
+                        <div key={n._id} className={`p-3 mb-2 rounded-xl text-sm ${n.read ? 'opacity-70' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                          <p className="text-slate-900 dark:text-white font-medium">{n.message}</p>
+                          <span className="text-xs text-slate-500">{new Date(n.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
 
         {/* Stats */}
@@ -412,6 +546,8 @@ export default function DashboardPage() {
                         assigneeName={getMemberName(task.assignedTo)}
                         onStatusUpdate={handleStatusUpdate}
                         showAssignee
+                        isAdmin={user?.role === 'admin'}
+                        onDelete={handleDeleteTask}
                       />
                     ))
                   )}
@@ -434,6 +570,8 @@ export default function DashboardPage() {
                           task={task}
                           assigneeName={getMemberName(task.assignedTo)}
                           showAssignee
+                          isAdmin={user?.role === 'admin'}
+                          onDelete={handleDeleteTask}
                         />
                       ))}
                     </div>
@@ -478,6 +616,48 @@ export default function DashboardPage() {
                     </motion.button>
                   </form>
                 </div>
+
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-100 dark:border-slate-800 p-6 mt-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    <MailPlus className="w-5 h-5 text-emerald-600" />
+                    <h2 className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-white">
+                      Invite to Project
+                    </h2>
+                  </div>
+
+                  <form onSubmit={handleInviteToProject} className="space-y-4">
+                    <select value={inviteMemberId} onChange={(e) => setInviteMemberId(e.target.value)} required className={inputClass}>
+                      <option value="">Select member...</option>
+                      {members.map((m) => (
+                        <option key={m._id} value={m._id}>{m.name}</option>
+                      ))}
+                    </select>
+
+                    <select value={inviteProjectId} onChange={(e) => setInviteProjectId(e.target.value)} required className={inputClass}>
+                      <option value="">Select project...</option>
+                      {projects.map((p) => (
+                        <option key={p._id} value={p._id}>{p.name}</option>
+                      ))}
+                    </select>
+
+                    {inviteMessage && (
+                      <p className={`text-xs font-bold ${inviteMessage.includes('success') ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {inviteMessage}
+                      </p>
+                    )}
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={inviteLoading}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-widest transition-colors shadow-lg shadow-emerald-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {inviteLoading ? 'Sending...' : 'Send Invite'}
+                      <ChevronRight className="w-4 h-4" />
+                    </motion.button>
+                  </form>
+                </div>
               </motion.aside>
 
               <motion.section
@@ -485,31 +665,44 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="lg:col-span-8"
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <Users className="w-6 h-6 text-violet-500" />
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                    Team Members
-                  </h2>
-                  <div className="h-px flex-grow bg-slate-200 dark:bg-slate-800" />
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    {members.length} members
-                  </span>
+                <div className="flex items-center justify-between mb-6 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-6 h-6 text-violet-500" />
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                      Team Members
+                    </h2>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      {members.length} members
+                    </span>
+                  </div>
+                  
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Search members..." 
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                      className="pl-9 pr-4 py-2 rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none text-sm text-slate-900 dark:text-white w-64 transition-all"
+                    />
+                  </div>
                 </div>
 
-                {members.length === 0 ? (
+                {filteredMembers.length === 0 ? (
                   <div className="bg-white dark:bg-slate-900 border-4 border-dotted border-slate-200 dark:border-slate-800 rounded-2xl py-16 text-center">
                     <Users className="w-12 h-12 text-slate-200 dark:text-slate-800 mx-auto mb-3" />
                     <p className="text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest text-sm">
-                      No team members yet. Add one to get started!
+                      {searchName ? 'No members found matching search.' : 'No team members yet. Add one to get started!'}
                     </p>
                   </div>
                 ) : (
                   <div className="grid gap-3">
-                    {members.map((member) => (
+                    {filteredMembers.map((member) => (
                       <TeamMemberCard
                         key={member._id}
                         member={member}
                         taskCount={getTaskCountForMember(member._id)}
+                        onApprove={handleApproveMember}
                       />
                     ))}
                   </div>
@@ -536,7 +729,7 @@ export default function DashboardPage() {
 
                   <form onSubmit={handleCreateProject} className="space-y-4">
                     <input value={projectName} onChange={(e) => setProjectName(e.target.value)} required placeholder="Project name" className={inputClass} />
-                    <textarea value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} required placeholder="Description" rows={3} className={`${inputClass} resize-none`} />
+                    <textarea value={projectDesc} onChange={(e) => setProjectDesc(e.target.value)} placeholder="Description (Optional)" rows={3} className={`${inputClass} resize-none`} />
 
                     {projectError && <p className="text-red-500 text-xs font-bold">{projectError}</p>}
 
@@ -585,7 +778,7 @@ export default function DashboardPage() {
                         className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 hover:border-blue-500/30 transition-all"
                       >
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">{project.name}</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{project.description}</p>
+                        {project.description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{project.description}</p>}
                         <div className="flex items-center gap-4 mt-4">
                           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                             {tasks.filter((t) => t.projectId === project._id).length} tasks

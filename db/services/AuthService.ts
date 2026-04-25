@@ -30,6 +30,11 @@ export class AuthService extends BaseService implements IAuthService {
       const user = await this.userRepository.findByEmail(credentials.email);
       if (!user) return null;
 
+      // Check if user is approved
+      if (user.role !== 'admin' && user.isApproved === false) {
+        throw new Error('Account pending admin approval');
+      }
+
       // Compare password with bcrypt
       const isMatch = await bcrypt.compare(credentials.password, user.password);
       if (!isMatch) return null;

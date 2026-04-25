@@ -9,6 +9,10 @@ export type Status = 'pending' | 'in_progress' | 'completed' | 'archived';
 
 export type ThemeMode = 'light' | 'dark';
 
+export type InvitationStatus = 'pending' | 'accepted' | 'declined';
+
+export type NotificationType = 'task_assigned' | 'task_completed';
+
 // ─── Utility Types ───────────────────────────────────────────────────
 
 /** Makes all properties of T optional except for the specified keys K */

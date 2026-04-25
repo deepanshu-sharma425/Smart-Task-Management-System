@@ -4,7 +4,7 @@ import { IProject } from '../interfaces/models';
 const ProjectSchema = new Schema<IProject>(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     ownerId: { type: String, required: true },
     memberIds: { type: [String], default: [] },
   },

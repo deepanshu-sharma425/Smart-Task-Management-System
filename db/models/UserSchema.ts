@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true },
     role: { type: String, enum: ['admin', 'member'], default: 'member' },
     avatar: { type: String },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

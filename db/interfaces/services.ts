@@ -13,8 +13,12 @@ import {
   ISignupData,
   ITask,
   IUserPublic,
+  IInvitation,
+  ICreateInvitationData,
+  INotification,
+  ICreateNotificationData,
 } from './models';
-import { EntityId, Status } from './types';
+import { EntityId, Status, InvitationStatus } from './types';
 
 // ─── Auth Service ────────────────────────────────────────────────────
 
@@ -74,4 +78,33 @@ export interface IProjectService {
 
   /** Remove a member from a project */
   removeMember(projectId: EntityId, userId: EntityId): Promise<IProject | null>;
+}
+
+// ─── Invitation Service ──────────────────────────────────────────────
+
+export interface IInvitationService {
+  /** Create a new invitation */
+  createInvitation(data: ICreateInvitationData): Promise<IInvitation>;
+
+  /** Get invitations for a member */
+  getInvitationsForMember(memberId: EntityId): Promise<IInvitation[]>;
+
+  /** Update an invitation's status */
+  updateInvitationStatus(invitationId: EntityId, status: InvitationStatus): Promise<IInvitation | null>;
+}
+
+// ─── Notification Service ────────────────────────────────────────────
+
+export interface INotificationService {
+  /** Create a new notification */
+  createNotification(data: ICreateNotificationData): Promise<INotification>;
+
+  /** Get all notifications for a user */
+  getNotificationsForUser(userId: EntityId): Promise<INotification[]>;
+
+  /** Get unread count for a user */
+  getUnreadCount(userId: EntityId): Promise<number>;
+
+  /** Mark all notifications as read for a user */
+  markAllAsRead(userId: EntityId): Promise<void>;
 }

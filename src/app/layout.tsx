@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AuthProvider } from './components/AuthProvider';
+import Navbar from './components/Navbar';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0b1120] transition-colors duration-300">
         <ThemeProvider>
           <AuthProvider>
+            <Navbar />
             {children}
           </AuthProvider>
         </ThemeProvider>

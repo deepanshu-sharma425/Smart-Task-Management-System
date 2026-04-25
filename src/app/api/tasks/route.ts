@@ -30,6 +30,19 @@ export async function POST(request: Request) {
     const data = await request.json();
     const taskService = TaskService.getInstance();
     const newTask = await taskService.createTask(data);
+    
+    // Trigger notification if assigned to someone
+    if (newTask.assignedTo) {
+      const { NotificationService } = await import('@db/services/NotificationService');
+      const notificationService = NotificationService.getInstance();
+      await notificationService.createNotification({
+        userId: newTask.assignedTo,
+        type: 'task_assigned',
+        message: `You have been assigned a new task: ${newTask.title}`,
+        relatedTaskId: newTask._id,
+      });
+    }
+
     return NextResponse.json(newTask, { status: 201 });
   } catch (error) {
     console.error('Create task error:', error);

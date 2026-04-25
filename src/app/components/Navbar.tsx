@@ -42,8 +42,6 @@ export default function Navbar() {
 
   const guestLinks = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/login', label: 'Sign In', icon: LogIn },
-    { href: '/signup', label: 'Sign Up', icon: UserPlus },
   ];
 
   const navLinks = user ? (isAdmin ? adminLinks : memberLinks) : guestLinks;
@@ -121,22 +119,7 @@ export default function Navbar() {
                     Logout
                   </button>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/login"
-                    className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              )}
+              ) : null}
             </div>
 
             {/* Mobile controls */}
@@ -207,26 +190,7 @@ export default function Navbar() {
                       Logout
                     </button>
                   </div>
-                ) : (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2 grid grid-cols-2 gap-2">
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/signup"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      Sign Up
-                    </Link>
-                  </div>
-                )}
+                ) : null}
               </div>
             </motion.div>
           )}

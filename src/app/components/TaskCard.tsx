@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, Zap, Calendar, ChevronRight, User } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, Zap, Calendar, ChevronRight, User, Trash2 } from 'lucide-react';
 import { format, differenceInDays, isPast, isToday } from 'date-fns';
 
 interface TaskCardProps {
@@ -19,9 +19,11 @@ interface TaskCardProps {
   assigneeName?: string;
   onStatusUpdate?: (id: string, status: string) => void;
   showAssignee?: boolean;
+  isAdmin?: boolean;
+  onDelete?: (id: string) => void;
 }
 
-export default function TaskCard({ task, assigneeName, onStatusUpdate, showAssignee = false }: TaskCardProps) {
+export default function TaskCard({ task, assigneeName, onStatusUpdate, showAssignee = false, isAdmin = false, onDelete }: TaskCardProps) {
   const getPriorityConfig = (priority: string) => {
     switch (priority) {
       case 'critical':
@@ -112,6 +114,15 @@ export default function TaskCard({ task, assigneeName, onStatusUpdate, showAssig
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{task.description}</p>
           </div>
+          {isAdmin && onDelete && (
+            <button 
+              onClick={() => onDelete(task._id)}
+              className="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+              title="Delete Task"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Footer */}
@@ -138,7 +149,7 @@ export default function TaskCard({ task, assigneeName, onStatusUpdate, showAssig
           </div>
 
           {/* Action button */}
-          {!isCompleted && onStatusUpdate && getNextStatus() && (
+          {!isCompleted && !isAdmin && onStatusUpdate && getNextStatus() && (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
