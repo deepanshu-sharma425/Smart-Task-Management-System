@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { UserRepository } from '@db/repositories/UserRepository';
+import { UserService } from '@db/services/UserService';
 
 export async function GET() {
   try {
-    const userRepository = UserRepository.getInstance();
-    const users = await userRepository.findAll();
+    const userService = UserService.getInstance();
+    const users = await userService.getAllUsers();
     return NextResponse.json(users);
   } catch (error) {
     console.error('Fetch users error:', error);
@@ -15,11 +15,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const userRepository = UserRepository.getInstance();
-    const newUser = await userRepository.create(data);
+    const userService = UserService.getInstance();
+    const newUser = await userService.createUser(data);
     return NextResponse.json(newUser, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create user error:', error);
-    return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to create user' }, { status: 500 });
   }
 }

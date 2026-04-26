@@ -44,8 +44,11 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(newTask, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create task error:', error);
-    return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Failed to create task' },
+      { status: error.message?.includes('unique') || error.message?.includes('already exists') ? 409 : 500 }
+    );
   }
 }

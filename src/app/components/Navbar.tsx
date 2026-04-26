@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Layout,
@@ -15,6 +15,8 @@ import {
   Users,
   FolderOpen,
   Home,
+  Sparkles,
+  MessageSquareQuote,
   LogIn,
   UserPlus,
 } from 'lucide-react';
@@ -28,6 +30,37 @@ export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Track scroll position for glassmorphism effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Smooth scroll handler for hash links
+  const handleHashClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      const hash = href.split('#')[1];
+      if (!hash) return;
+
+      // If we're already on the home page, just scroll
+      if (pathname === '/') {
+        e.preventDefault();
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setMobileOpen(false);
+        }
+      }
+      // Otherwise navigate to / first (Next.js will handle), then scroll after
+      // The scroll-smooth on <html> will handle it
+      setMobileOpen(false);
+    },
+    [pathname]
+  );
 
   const adminLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -41,16 +74,29 @@ export default function Navbar() {
   ];
 
   const guestLinks = [
-    { href: '/', label: 'Home', icon: Home },
+    { href: '/#hero', label: 'Home', icon: Home },
+    { href: '/#features', label: 'Features', icon: Sparkles },
+    { href: '/#testimonials', label: 'Testimonials', icon: MessageSquareQuote },
   ];
 
   const navLinks = user ? (isAdmin ? adminLinks : memberLinks) : guestLinks;
 
-  const isActive = (href: string) => pathname === href || pathname === href.split('#')[0];
+  const isActive = (href: string) => {
+    const basePath = href.split('#')[0] || '/';
+    return pathname === basePath;
+  };
+
+  const isGuest = !user;
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+      <nav
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm'
+            : 'bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-b border-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center h-16 gap-6">
             {/* Logo */}
@@ -58,7 +104,7 @@ export default function Navbar() {
               href={user ? (isAdmin ? '/dashboard' : '/member') : '/'}
               className="flex items-center gap-2 shrink-0 group"
             >
-              <div className="p-1.5 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition-colors">
+              <div className="p-1.5 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
                 <Layout className="w-4 h-4 text-white" />
               </div>
               <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">
@@ -72,6 +118,7 @@ export default function Navbar() {
                 <Link
                   key={href}
                   href={href}
+                  onClick={(e) => href.includes('#') ? handleHashClick(e, href) : undefined}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
                     isActive(href)
                       ? 'bg-blue-600 text-white shadow-sm'
@@ -119,7 +166,25 @@ export default function Navbar() {
                     Logout
                   </button>
                 </div>
-              ) : null}
+              ) : (
+                /* Guest auth buttons */
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-lg shadow-blue-600/20"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Mobile controls */}
@@ -150,14 +215,17 @@ export default function Navbar() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+              className="md:hidden overflow-hidden border-t border-slate-200/60 dark:border-slate-800/60 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl"
             >
               <div className="px-4 py-3 space-y-1">
                 {navLinks.map(({ href, label, icon: Icon }) => (
                   <Link
                     key={href}
                     href={href}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      if (href.includes('#')) handleHashClick(e, href);
+                      else setMobileOpen(false);
+                    }}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                       isActive(href)
                         ? 'bg-blue-600 text-white'
@@ -190,7 +258,27 @@ export default function Navbar() {
                       Logout
                     </button>
                   </div>
-                ) : null}
+                ) : (
+                  /* Guest mobile auth */
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2 space-y-1">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-bold bg-blue-600 text-white"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

@@ -46,4 +46,10 @@ export class TaskRepository extends BaseRepository<ITask> {
     await this.connect();
     return await TaskModel.find({ priority }).sort({ createdAt: -1 }).lean();
   }
+
+  /** Find a task by admin (assignedBy) and title — for uniqueness check */
+  public async findByAdminAndTitle(assignedBy: string, title: string): Promise<ITask | null> {
+    await this.connect();
+    return await TaskModel.findOne({ assignedBy, title }).lean();
+  }
 }

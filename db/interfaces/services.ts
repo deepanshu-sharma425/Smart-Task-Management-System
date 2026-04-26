@@ -12,13 +12,14 @@ import {
   ISession,
   ISignupData,
   ITask,
+  IUser,
   IUserPublic,
   IInvitation,
   ICreateInvitationData,
   INotification,
   ICreateNotificationData,
 } from './models';
-import { EntityId, Status, InvitationStatus } from './types';
+import { EntityId, Role, Status, InvitationStatus } from './types';
 
 // ─── Auth Service ────────────────────────────────────────────────────
 
@@ -107,4 +108,29 @@ export interface INotificationService {
 
   /** Mark all notifications as read for a user */
   markAllAsRead(userId: EntityId): Promise<void>;
+}
+
+// ─── User Service ────────────────────────────────────────────────────
+
+export interface IUserService {
+  /** Get all users */
+  getAllUsers(): Promise<IUserPublic[]>;
+
+  /** Get all team members (role = 'member') */
+  getTeamMembers(): Promise<IUserPublic[]>;
+
+  /** Get a user by ID */
+  getUserById(userId: EntityId): Promise<IUserPublic | null>;
+
+  /** Create a new user (admin-created, with password hashing) */
+  createUser(data: { name: string; email: string; password: string; role: Role; isApproved?: boolean }): Promise<IUserPublic>;
+
+  /** Update a user */
+  updateUser(userId: EntityId, data: Partial<IUser>): Promise<IUserPublic | null>;
+
+  /** Approve a pending member */
+  approveUser(userId: EntityId): Promise<IUserPublic | null>;
+
+  /** Reject (delete) a pending member */
+  rejectUser(userId: EntityId): Promise<boolean>;
 }

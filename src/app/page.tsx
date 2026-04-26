@@ -12,6 +12,8 @@ import {
   Target,
   CheckCircle2,
   ArrowRight,
+  Star,
+  Quote,
 } from 'lucide-react';
 import Link from 'next/link';
 import BackgroundShapes from './components/BackgroundShapes';
@@ -52,6 +54,56 @@ const stats = [
   { value: '100+', label: 'Teams' },
 ];
 
+const testimonials = [
+  {
+    name: 'Sarah Chen',
+    role: 'Engineering Lead at Vercel',
+    text: 'TaskForge transformed how our engineering team manages sprints. The deadline tracking alone saved us hours every week.',
+    rating: 5,
+    initials: 'SC',
+    color: 'bg-blue-600',
+  },
+  {
+    name: 'Marcus Rivera',
+    role: 'Product Manager at Stripe',
+    text: 'The role-based access control is exactly what we needed. Admins get full visibility while team members stay focused on their tasks.',
+    rating: 5,
+    initials: 'MR',
+    color: 'bg-violet-600',
+  },
+  {
+    name: 'Priya Patel',
+    role: 'CTO at Notion',
+    text: 'Clean, fast, and beautifully designed. TaskForge is the best task management tool we have used for our distributed team.',
+    rating: 5,
+    initials: 'PP',
+    color: 'bg-emerald-600',
+  },
+  {
+    name: 'James O\'Brien',
+    role: 'Startup Founder',
+    text: 'As a founder wearing many hats, TaskForge keeps my small team organized without unnecessary complexity. Highly recommended.',
+    rating: 4,
+    initials: 'JO',
+    color: 'bg-amber-600',
+  },
+];
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`w-3.5 h-3.5 ${
+            i < rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -87,7 +139,7 @@ export default function Home() {
       <BackgroundShapes count={15} />
 
       {/* ─── Hero Section ─── */}
-      <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <section id="hero" ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Parallax floating shapes */}
         <motion.div
           style={{ y: floatY1 }}
@@ -261,6 +313,58 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{item.title}</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </AnimatedCard>
+            ))}
+          </div>
+        </div>
+      </ParallaxSection>
+
+      {/* ─── Testimonials Section ─── */}
+      <ParallaxSection speed={0.1} id="testimonials" className="py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <AnimatedCard hover={false} className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              Loved by <span className="text-blue-600">teams everywhere</span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+              See what teams are saying about managing their workflow with TaskForge.
+            </p>
+          </AnimatedCard>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {testimonials.map((testimonial, i) => (
+              <AnimatedCard
+                key={testimonial.name}
+                delay={i * 0.12}
+                className="group relative bg-white dark:bg-slate-900 p-8 rounded-2xl border-2 border-slate-100 dark:border-slate-800 hover:border-blue-500/30 dark:hover:border-blue-500/30 transition-all overflow-hidden"
+              >
+                {/* Decorative quote */}
+                <Quote className="absolute top-4 right-4 w-10 h-10 text-slate-100 dark:text-slate-800 group-hover:text-blue-100 dark:group-hover:text-blue-900/30 transition-colors" />
+
+                <div className="relative z-10">
+                  {/* Stars */}
+                  <StarRating rating={testimonial.rating} />
+
+                  {/* Quote text */}
+                  <p className="mt-4 text-slate-600 dark:text-slate-300 leading-relaxed text-[15px]">
+                    &ldquo;{testimonial.text}&rdquo;
+                  </p>
+
+                  {/* Author */}
+                  <div className="mt-6 flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl ${testimonial.color} flex items-center justify-center shrink-0`}>
+                      <span className="text-white text-xs font-black">{testimonial.initials}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {testimonial.name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {testimonial.role}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </AnimatedCard>
             ))}

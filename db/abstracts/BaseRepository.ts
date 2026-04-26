@@ -28,13 +28,20 @@ export abstract class BaseRepository<T extends IEntity> implements IRepository<T
   }
 
   public async findByFilter(predicate: (item: T) => boolean): Promise<T[]> {
-    // Note: predicate filtering in-memory is inefficient for MongoDB.
-    // In a real system design, we would pass a MongoDB query object.
-    // For this refactor, we'll fetch all and filter to maintain interface compatibility,
-    // but in a real project, we'd add findByQuery(query: any).
+    // NOTE: This method is inefficient for MongoDB as it loads all records into memory.
+    // Prefer findByQuery() for MongoDB-native filtering.
     await this.connect();
     const all = await this.findAll();
     return all.filter(predicate);
+  }
+
+  /**
+   * Find records using a native MongoDB query object.
+   * More efficient than findByFilter() for large collections.
+   */
+  public async findByQuery(query: Record<string, unknown>): Promise<T[]> {
+    await this.connect();
+    return await this.model.find(query).sort({ createdAt: -1 }).lean();
   }
 
   // ─── IWritable<T> ────────────────────────────────────────────────
