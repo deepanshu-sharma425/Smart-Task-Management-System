@@ -23,4 +23,7 @@ const TaskSchema = new Schema<ITask>(
   { timestamps: true }
 );
 
+// Enforce task title uniqueness per admin user (assignedBy)
+TaskSchema.index({ title: 1, assignedBy: 1 }, { unique: true, sparse: true });
+
 export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);

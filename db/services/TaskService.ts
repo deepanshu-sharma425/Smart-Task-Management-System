@@ -28,9 +28,18 @@ export class TaskService extends BaseService implements ITaskService {
         throw new Error(errors.join(', '));
       }
 
+      // Enforce task title uniqueness per admin user
+      if (data.assignedBy) {
+        const existingByAdmin = await this.taskRepository.findByAdminAndTitle(data.assignedBy, data.title);
+        if (existingByAdmin) {
+          throw new Error('A task with this title already exists for this admin');
+        }
+      }
+
+      // Also enforce uniqueness within a project (existing behavior)
       if (data.projectId) {
-        const existingTask = await this.taskRepository.findByProjectAndTitle(data.projectId, data.title);
-        if (existingTask) {
+        const existingInProject = await this.taskRepository.findByProjectAndTitle(data.projectId, data.title);
+        if (existingInProject) {
           throw new Error('Task title must be unique within the project');
         }
       }

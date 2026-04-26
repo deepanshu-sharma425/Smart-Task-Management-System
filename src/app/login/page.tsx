@@ -6,7 +6,6 @@ import { Layout, Mail, Lock, ChevronRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../components/AuthProvider';
 import BackgroundShapes from '../components/BackgroundShapes';
-import Navbar from '../components/Navbar';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -43,7 +42,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] flex flex-col">
       <BackgroundShapes count={8} />
-      <Navbar />
 
       <div className="flex-grow flex items-center justify-center px-6 py-16 relative z-10">
         <motion.div
