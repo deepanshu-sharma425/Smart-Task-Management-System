@@ -32,9 +32,22 @@ A modern, robust, and scalable task management system built using **Next.js, Typ
  └── /services     # Business logic layer
 
 /tests             # Jest test suites
-/diagrams          # ER, class, use case, and sequence diagrams
-/docs              # SDLC and project documentation
+/diagrams          # Architecture, ER, class, data flow, and sequence diagrams
+/docs              # Project overview, architecture docs, and SDLC
 ```
+
+---
+
+## 📖 Documentation & Diagrams
+
+Detailed documentation and system diagrams are available in the repository:
+
+- **[Project Overview](docs/PROJECT_OVERVIEW.md)**: Comprehensive description of features, tech stack, and architecture.
+- **[Architecture Diagram](diagrams/ArchitectureDiagram.md)**: Visual representation of the layered architecture.
+- **[Class Diagram](diagrams/ClassDiagram.md)**: Detailed OOP structure of entities, services, and repositories.
+- **[ER Diagram](diagrams/ERDiagram.md)**: Database schema and entity relationships.
+- **[Data Flow Diagram](diagrams/DataFlowDiagram.md)**: Visualization of data movement through the system.
+- **[Sequence Diagrams](diagrams/SequenceDiagram.md)**: Step-by-step flows for auth and task management.
 
 ---
 

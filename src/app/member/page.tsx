@@ -14,7 +14,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import BackgroundShapes from '../components/BackgroundShapes';
 import TaskCard from '../components/TaskCard';
 import StatsCard from '../components/StatsCard';
 import { useRouter } from 'next/navigation';
@@ -157,8 +156,6 @@ export default function MemberPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120]">
-      <BackgroundShapes count={6} />
-
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <motion.div

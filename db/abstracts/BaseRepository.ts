@@ -27,6 +27,10 @@ export abstract class BaseRepository<T extends IEntity> implements IRepository<T
     return await this.model.find({}).sort({ createdAt: -1 }).lean();
   }
 
+  /**
+   * @deprecated Inefficient for MongoDB as it loads all records into memory.
+   * Use findByQuery() for native filtering instead.
+   */
   public async findByFilter(predicate: (item: T) => boolean): Promise<T[]> {
     // NOTE: This method is inefficient for MongoDB as it loads all records into memory.
     // Prefer findByQuery() for MongoDB-native filtering.

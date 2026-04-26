@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from './components/ThemeProvider';
 import { AuthProvider } from './components/AuthProvider';
 import Navbar from './components/Navbar';
+import BackgroundShapes from './components/BackgroundShapes';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0b1120] transition-colors duration-300">
         <ThemeProvider>
           <AuthProvider>
+            <BackgroundShapes count={10} />
             <Navbar />
             {children}
           </AuthProvider>

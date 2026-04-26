@@ -5,7 +5,6 @@ import { motion, Variants } from 'framer-motion';
 import { Layout, Mail, Lock, User, ChevronRight, AlertCircle, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../components/AuthProvider';
-import BackgroundShapes from '../components/BackgroundShapes';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -48,8 +47,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] flex flex-col">
-      <BackgroundShapes count={8} />
-
       <div className="flex-grow flex items-center justify-center px-6 py-16 relative z-10">
         <motion.div
           variants={containerVariants}

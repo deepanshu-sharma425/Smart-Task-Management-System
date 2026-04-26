@@ -18,7 +18,6 @@ import {
   MailPlus,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import BackgroundShapes from '../components/BackgroundShapes';
 import TaskCard from '../components/TaskCard';
 import StatsCard from '../components/StatsCard';
 import TeamMemberCard from '../components/TeamMemberCard';
@@ -369,9 +368,7 @@ export default function DashboardPage() {
   const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchName.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120] pt-16">
-      <BackgroundShapes count={6} />
-
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120]">
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <motion.div

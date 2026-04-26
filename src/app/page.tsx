@@ -16,7 +16,6 @@ import {
   Quote,
 } from 'lucide-react';
 import Link from 'next/link';
-import BackgroundShapes from './components/BackgroundShapes';
 import ParallaxSection from './components/ParallaxSection';
 import AnimatedCard from './components/AnimatedCard';
 
@@ -136,8 +135,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0b1120]">
-      <BackgroundShapes count={15} />
-
       {/* ─── Hero Section ─── */}
       <section id="hero" ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Parallax floating shapes */}
