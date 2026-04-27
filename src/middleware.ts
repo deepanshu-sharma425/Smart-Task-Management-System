@@ -8,10 +8,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define public paths
-  const isPublicPath = 
-    pathname === '/' || 
-    pathname === '/login' || 
-    pathname === '/signup' || 
+  const isPublicPath =
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/signup' ||
     pathname.startsWith('/api/auth');
 
   const token = request.cookies.get('taskforge-token')?.value;
@@ -25,6 +25,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (token) {
+    // jhkhh
     try {
       // Verify JWT
       const { payload } = await jwtVerify(token, secret);
