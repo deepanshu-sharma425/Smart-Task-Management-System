@@ -9,7 +9,7 @@
 | Feature | Description |
 |---------|-------------|
 | **JWT Authentication** | Stateless auth with bcrypt password hashing (12 rounds) and HTTP-only cookies |
-| **Role-Based Access Control** | Admin and Member roles with edge middleware-enforced route protection |
+| **Role-Based Access Control** | 5 distinct roles (Admin, Project Manager, Developer, UI/UX Designer, Member) with edge middleware-enforced route protection |
 | **Task Management** | Create, assign, track, and complete tasks with priorities and deadlines |
 | **Project Organization** | Group tasks and team members into named projects with global uniqueness |
 | **Team Management** | Admin can add members, approve/reject signups, and invite to projects |
@@ -238,7 +238,7 @@ Admin invites member → POST /api/invitations
 | **Service Pattern** | Encapsulates business logic in dedicated service classes |
 | **Singleton Pattern** | All repositories and services use `getInstance()` for resource efficiency |
 | **Template Method** | `BaseEntity.validate()` defines the validation contract; subclasses implement |
-| **Strategy Pattern** | Navbar dynamically selects link sets based on user role (admin/member/guest) |
+| **Strategy Pattern** | Navbar dynamically selects link sets based on user role (Admin/Project Manager/Developer/UI_UX/Member/Guest) |
 | **Observer Pattern** | Notification system reacts to task events (assigned, completed) |
 | **Provider Pattern** | React Context providers for Auth and Theme state management |
 | **Factory Method** | `BaseEntity.generateId()` encapsulates ID creation logic |
